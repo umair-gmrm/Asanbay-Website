@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Asanbay Society for Social Justice{% endblock %}</title>
+    
+    {% load static %}
+    <!-- Tailwind CSS CDN (for development - use Tailwind CLI for production) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            red: '#DC2626',
+                            'red-dark': '#B91C1C',
+                            'red-light': '#EF4444',
+                        },
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(10px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@2.0.8"></script>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-white to-slate-50 min-h-screen flex flex-col antialiased">
+    <!-- Navigation -->
+    <nav class="bg-white/80 backdrop-blur-lg border-b border-slate-200/60 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'articles:home' %}" class="group flex items-center space-x-3">
+                        <img src="{% static 'images/logo.jpg' %}" alt="Asanbay Logo" class="h-10 w-auto transform group-hover:scale-105 transition-transform duration-200" />
+                        <span class="text-xl font-bold text-slate-900">
+                            Asanbay
+                        </span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-1">
+                    <a href="{% url 'articles:home' %}" class="text-slate-700 hover:text-slate-900 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-slate-100">
+                        Home
+                    </a>
+                    <a href="{% url 'articles:list' %}" class="text-slate-700 hover:text-slate-900 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-slate-100">
+                        Articles
+                    </a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'admin:index' %}" class="text-slate-700 hover:text-slate-900 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-slate-100">
+                            Admin
+                        </a>
+                        <form method="post" action="{% url 'logout' %}" class="inline m-0">
+                            {% csrf_token %}
+                            <button type="submit" class="text-slate-700 hover:text-slate-900 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-slate-100 bg-transparent border-0 cursor-pointer">
+                                Logout
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'admin:login' %}" class="bg-red-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-all duration-200 shadow-sm hover:shadow-md">
+                            Login
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl mx-auto w-full py-8 sm:px-6 lg:px-8">
+        {% if messages %}
+            <div class="mb-6 px-4 sm:px-0">
+                {% for message in messages %}
+                    <div class="animate-slide-up bg-white border-l-4 border-{{ message.tags }}-500 text-{{ message.tags }}-700 px-6 py-4 rounded-lg shadow-sm mb-3 flex items-center justify-between" role="alert">
+                        <div class="flex items-center">
+                            {% if message.tags == 'success' %}
+                                <svg class="w-5 h-5 mr-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            {% elif message.tags == 'error' %}
+                                <svg class="w-5 h-5 mr-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                            {% elif message.tags == 'warning' %}
+                                <svg class="w-5 h-5 mr-3 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                            {% else %}
+                                <svg class="w-5 h-5 mr-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                </svg>
+                            {% endif %}
+                            <span class="font-medium">{{ message }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white/60 backdrop-blur-sm border-t border-slate-200/60 mt-12">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col items-center justify-center space-y-4">
+                <div class="flex items-center space-x-2">
+                    <img src="{% static 'images/logo.jpg' %}" alt="Asanbay Society Logo" class="h-6 w-auto" />
+                    <p class="text-slate-600 text-sm font-medium">
+                        Asanbay Society for Social Justice
+                    </p>
+                </div>
+                <p class="text-slate-500 text-xs">
+                    &copy; {% now "Y" %} All rights reserved
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+
