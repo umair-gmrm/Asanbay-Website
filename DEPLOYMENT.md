@@ -49,13 +49,53 @@ This guide explains how to deploy the Asanbay Website to a cloud VM using Docker
    curl http://localhost
    ```
 
+## Deployment with Dokploy
+
+If you're deploying using Dokploy on your internal server, use the `docker-compose.dokploy.yml` file instead of `docker-compose.yml`.
+
+### Key Differences for Dokploy:
+
+1. **No Nginx Service**: Dokploy uses Traefik as a reverse proxy, so nginx is not needed
+2. **Traefik Labels**: The web service includes Traefik labels for automatic SSL and domain routing
+3. **External Network**: Uses `dokploy-network` (external network managed by Dokploy)
+4. **Automatic SSL**: Traefik automatically handles SSL certificates via Let's Encrypt
+
+### Steps to Deploy with Dokploy:
+
+1. **In Dokploy Dashboard**:
+   - Navigate to "Compose" section
+   - Create a new Compose service
+   - Set the compose file path to `docker-compose.dokploy.yml`
+
+2. **Configure Environment Variables**:
+   - Set all required environment variables in Dokploy's environment section
+   - Ensure `ALLOWED_HOSTS` includes `asanbay.org` and `www.asanbay.org`
+   - Set `DEBUG=False` for production
+   - Configure `SECRET_KEY` and database credentials
+
+3. **Domain Configuration**:
+   - The Traefik labels are already configured for `asanbay.org` and `www.asanbay.org`
+   - SSL certificates will be automatically provisioned by Let's Encrypt
+   - The configuration includes automatic www to non-www redirect
+
+4. **Deploy**:
+   - Dokploy will handle the build and deployment process
+   - Monitor the deployment logs in the Dokploy dashboard
+
+### Static Files with Dokploy:
+
+Since nginx is not used, static files are served directly by Django. The `collectstatic` command runs automatically on container startup. For better performance, you may want to configure a CDN or object storage for static files in production.
+
 ## Services
 
-The deployment includes three services:
-
+### Standard Deployment (docker-compose.yml):
 - **web**: Django application (Gunicorn WSGI server)
 - **db**: PostgreSQL 18 database
 - **nginx**: Reverse proxy and static file server
+
+### Dokploy Deployment (docker-compose.dokploy.yml):
+- **web**: Django application (Gunicorn WSGI server) - exposed via Traefik
+- **db**: PostgreSQL 18 database
 
 ## Configuration
 
