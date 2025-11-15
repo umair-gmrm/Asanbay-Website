@@ -24,7 +24,6 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: asanbay_web
-    # Run as root initially so entrypoint can fix permissions
     user: "0:0"
     command: >
       sh -c "python manage.py migrate --noinput &&
@@ -56,15 +55,28 @@ services:
       start_period: 40s
     labels:
       - "dokploy.service.name=asanbay-web"
-      # Traefik configuration for domain routing
+
+  nginx:
+    image: nginx:alpine
+    container_name: asanbay_nginx
+    volumes:
+      - static_volume:/app/staticfiles:ro
+      - media_volume:/app/media:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      web:
+        condition: service_healthy
+    networks:
+      - dokploy-network
+    restart: unless-stopped
+    labels:
+      - "dokploy.service.name=asanbay-nginx"
       - "traefik.enable=true"
-      # Main router for asanbay.org
       - "traefik.http.routers.asanbay.rule=Host(`asanbay.org`)"
       - "traefik.http.routers.asanbay.entrypoints=websecure"
       - "traefik.http.routers.asanbay.tls.certresolver=letsencrypt"
       - "traefik.http.routers.asanbay.tls=true"
       - "traefik.http.routers.asanbay.service=asanbay"
-      # Router for www.asanbay.org (redirects to non-www)
       - "traefik.http.routers.asanbay-www.rule=Host(`www.asanbay.org`)"
       - "traefik.http.routers.asanbay-www.entrypoints=websecure"
       - "traefik.http.routers.asanbay-www.tls.certresolver=letsencrypt"
@@ -73,8 +85,7 @@ services:
       - "traefik.http.middlewares.asanbay-redirect.redirectregex.regex=^https://www\\.asanbay\\.org/(.*)"
       - "traefik.http.middlewares.asanbay-redirect.redirectregex.replacement=https://asanbay.org/$${1}"
       - "traefik.http.middlewares.asanbay-redirect.redirectregex.permanent=true"
-      # Service definition
-      - "traefik.http.services.asanbay.loadbalancer.server.port=8000"
+      - "traefik.http.services.asanbay.loadbalancer.server.port=80"
 
 volumes:
   postgres_data:
@@ -87,4 +98,3 @@ volumes:
 networks:
   dokploy-network:
     external: true
-

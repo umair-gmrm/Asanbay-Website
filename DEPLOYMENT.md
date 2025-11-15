@@ -55,10 +55,11 @@ If you're deploying using Dokploy on your internal server, use the `docker-compo
 
 ### Key Differences for Dokploy:
 
-1. **No Nginx Service**: Dokploy uses Traefik as a reverse proxy, so nginx is not needed
-2. **Traefik Labels**: The web service includes Traefik labels for automatic SSL and domain routing
+1. **Nginx + Traefik**: Nginx handles static files and reverse proxies to Django, while Traefik handles SSL and domain routing
+2. **Traefik Labels**: The nginx service includes Traefik labels for automatic SSL and domain routing
 3. **External Network**: Uses `dokploy-network` (external network managed by Dokploy)
 4. **Automatic SSL**: Traefik automatically handles SSL certificates via Let's Encrypt
+5. **No Port Mapping**: Nginx doesn't expose ports directly - Traefik routes traffic to nginx on port 80
 
 ### Steps to Deploy with Dokploy:
 
@@ -84,7 +85,7 @@ If you're deploying using Dokploy on your internal server, use the `docker-compo
 
 ### Static Files with Dokploy:
 
-Since nginx is not used, static files are served directly by Django. The `collectstatic` command runs automatically on container startup. For better performance, you may want to configure a CDN or object storage for static files in production.
+Nginx handles static and media files efficiently, serving them directly without hitting Django. The `collectstatic` command runs automatically on container startup, and nginx serves the collected static files from the shared volume.
 
 ## Services
 
@@ -94,8 +95,9 @@ Since nginx is not used, static files are served directly by Django. The `collec
 - **nginx**: Reverse proxy and static file server
 
 ### Dokploy Deployment (docker-compose.dokploy.yml):
-- **web**: Django application (Gunicorn WSGI server) - exposed via Traefik
+- **web**: Django application (Gunicorn WSGI server)
 - **db**: PostgreSQL 18 database
+- **nginx**: Reverse proxy and static file server - exposed via Traefik
 
 ## Configuration
 
