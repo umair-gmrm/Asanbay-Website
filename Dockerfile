@@ -25,9 +25,9 @@ WORKDIR /app
 # Copy dependency files
 COPY pyproject.toml uv.lock ./
 
-# Install Python dependencies using uv
-# Install packages directly from pyproject.toml
-RUN uv pip install --system "django>=5.2.8" "psycopg[binary]>=3.2.12" "gunicorn>=23.0.0"
+# Install Python dependencies using uv from pyproject.toml
+# This reads dependencies from the [project.dependencies] section
+RUN uv pip install --system .
 
 # Copy project files
 COPY . .
