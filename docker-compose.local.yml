@@ -3,7 +3,6 @@ version: '3.8'
 services:
   postgres:
     image: postgres:18
-    container_name: asanbay_postgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-asanbay_db}
       POSTGRES_USER: ${POSTGRES_USER:-asanbay_user}

@@ -16,7 +16,7 @@
 {% endblock %}
 
 {% block content %}
-<article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 animate-fade-in">
+<article class="w-full animate-fade-in">
     <!-- Back Button -->
     <div class="mb-6">
         <a href="{% url 'articles:list' %}" class="inline-flex items-center text-slate-600 hover:text-slate-900 font-medium transition-colors group">
@@ -57,13 +57,13 @@
         
         <div class="flex flex-wrap items-center gap-4 text-sm text-slate-600 pb-6 border-b border-slate-200">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-sm">
+                <a href="{% url 'articles:author_detail' article.author.slug %}" class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-sm hover:bg-red-700 transition-colors">
                     <span class="text-white font-semibold">
-                        {{ article.author.get_full_name|default:article.author.username|first|upper }}
+                        {{ article.author.name|first|upper }}
                     </span>
-                </div>
+                </a>
                 <div>
-                    <div class="font-semibold text-slate-900">{{ article.author.get_full_name|default:article.author.username }}</div>
+                    <a href="{% url 'articles:author_detail' article.author.slug %}" class="font-semibold text-slate-900 hover:text-red-600 transition-colors">{{ article.author.name }}</a>
                     <div class="text-xs text-slate-500">Author</div>
                 </div>
             </div>

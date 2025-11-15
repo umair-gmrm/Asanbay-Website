@@ -6,11 +6,13 @@
 
 **Acceptance Criteria:**
 - Clicking an article opens the full article page
-- Article displays title, author, publication date, category, and full content
+- Article displays title, **author (clickable, links to author profile)**, publication date, category, and full content
 - **Tags are displayed at the top of the article** (below title or at top of content)
 - Each tag is clickable and links to articles filtered by that tag
+- Author name is clickable and links to author's profile page showing all their articles
 - Article shows comment count (if comments feature is implemented)
 - Social media share buttons are visible
 - Page is mobile responsive
 - **No login required** - anyone can read articles
+- **Note:** Authors are independent entities managed by admin, not user accounts
 

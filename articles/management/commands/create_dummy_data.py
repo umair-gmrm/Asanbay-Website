@@ -5,12 +5,13 @@ Usage: python manage.py create_dummy_data
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.utils.text import slugify
 from datetime import timedelta
-from articles.models import Article, ArticleStatus
+from articles.models import Article, ArticleStatus, Author, Category, Tag
 
 
 class Command(BaseCommand):
-    help = 'Creates dummy articles and users for testing'
+    help = 'Creates dummy articles and authors for testing'
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -20,53 +21,89 @@ class Command(BaseCommand):
             help='Number of articles to create (default: 15)',
         )
         parser.add_argument(
-            '--users',
+            '--authors',
             type=int,
-            default=3,
-            help='Number of users to create (default: 3)',
+            default=5,
+            help='Number of authors to create (default: 5)',
         )
 
     def handle(self, *args, **options):
         num_articles = options['articles']
-        num_users = options['users']
+        num_authors = options['authors']
 
         self.stdout.write(self.style.SUCCESS('Creating dummy data...'))
 
-        # Create users
-        users = []
-        for i in range(1, num_users + 1):
-            username = f'author{i}'
-            email = f'author{i}@asanbay.org'
-            
-            user, created = User.objects.get_or_create(
-                username=username,
-                defaults={
-                    'email': email,
-                    'first_name': f'Author',
-                    'last_name': f'{i}',
-                }
-            )
-            
-            if created:
-                user.set_password('password123')
-                user.save()
-                self.stdout.write(self.style.SUCCESS(f'Created user: {username}'))
-            else:
-                self.stdout.write(self.style.WARNING(f'User already exists: {username}'))
-            
-            users.append(user)
-
-        # Create a superuser if it doesn't exist
+        # Create a superuser if it doesn't exist (for admin access)
         if not User.objects.filter(is_superuser=True).exists():
-            admin_user = User.objects.create_superuser(
+            User.objects.create_superuser(
                 username='admin',
                 email='admin@asanbay.org',
                 password='admin123',
                 first_name='Admin',
                 last_name='User'
             )
-            users.append(admin_user)
             self.stdout.write(self.style.SUCCESS('Created superuser: admin (password: admin123)'))
+
+        # Create default category if it doesn't exist
+        default_category, created = Category.objects.get_or_create(
+            name='General',
+            defaults={'slug': 'general', 'description': 'General articles and content'}
+        )
+        if created:
+            self.stdout.write(self.style.SUCCESS(f'Created default category: {default_category.name}'))
+
+        # Create some tags
+        tag_names = ["Social Justice", "Community", "Education", "Equality", "Environment", "Healthcare", "Politics"]
+        tags = []
+        for name in tag_names:
+            tag, created = Tag.objects.get_or_create(
+                name=name,
+                defaults={'slug': slugify(name)}
+            )
+            tags.append(tag)
+
+        # Create authors
+        authors = []
+        author_names = [
+            'Sarah Johnson',
+            'Michael Chen',
+            'Emily Rodriguez',
+            'David Thompson',
+            'Lisa Anderson',
+            'James Wilson',
+            'Maria Garcia',
+            'Robert Brown'
+        ]
+        
+        for i in range(num_authors):
+            if i < len(author_names):
+                author_name = author_names[i]
+            else:
+                author_name = f'Author {i+1}'
+            
+            # Create unique slug
+            base_slug = slugify(author_name)
+            slug = base_slug
+            counter = 1
+            while Author.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            
+            author, created = Author.objects.get_or_create(
+                slug=slug,
+                defaults={
+                    'name': author_name,
+                    'bio': f'{author_name} is a dedicated writer and advocate for social justice, with expertise in community organizing and policy analysis.',
+                    'is_active': True,
+                }
+            )
+            
+            if created:
+                self.stdout.write(self.style.SUCCESS(f'Created author: {author.name}'))
+            else:
+                self.stdout.write(self.style.WARNING(f'Author already exists: {author.name}'))
+            
+            authors.append(author)
 
         # Sample article titles and content
         article_data = [
@@ -278,8 +315,8 @@ By approaching immigration through a social justice framework, we can work towar
             # Vary the status
             status = statuses[i % len(statuses)]
             
-            # Assign author (cycle through users)
-            author = users[i % len(users)]
+            # Assign author (cycle through authors)
+            author = authors[i % len(authors)]
             
             # Create published date (vary from recent to older)
             days_ago = i * 3
@@ -291,25 +328,32 @@ By approaching immigration through a social justice framework, we can work towar
                 content=article_info['content'],
                 excerpt=article_info['excerpt'],
                 author=author,
+                category=default_category,
                 status=status,
                 published_at=published_date,
             )
             
+            # Add random tags to article
+            import random
+            random_tags = random.sample(tags, k=random.randint(0, min(len(tags), 3)))
+            article.tags.set(random_tags)
+            
             created_count += 1
             status_display = self.style.SUCCESS if status == ArticleStatus.PUBLISHED else self.style.WARNING
             self.stdout.write(
-                f'Created article: "{article.title}" ({status}) by {author.username}'
+                f'Created article: "{article.title}" ({status}) by {author.name}'
             )
 
         self.stdout.write(self.style.SUCCESS(
             f'\nSuccessfully created {created_count} articles!'
         ))
         self.stdout.write(self.style.SUCCESS(
-            f'Created {len(users)} users for testing.'
+            f'Created {len(authors)} authors for testing.'
         ))
         self.stdout.write(self.style.SUCCESS(
             '\nYou can now:\n'
             '- Visit http://127.0.0.1:8000/ to see published articles\n'
+            '- Visit http://127.0.0.1:8000/authors/ to see all authors\n'
             '- Login to admin at http://127.0.0.1:8000/admin/ with username: admin, password: admin123\n'
             '- Test search functionality with various keywords'
         ))

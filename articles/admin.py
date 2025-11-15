@@ -1,5 +1,38 @@
 from django.contrib import admin
-from .models import Article, Category, Tag
+from .models import Article, Category, Tag, Author
+
+
+@admin.register(Author)
+class AuthorAdmin(admin.ModelAdmin):
+    list_display = ['name', 'slug', 'articles_count', 'created_at']
+    search_fields = ['name', 'bio']
+    prepopulated_fields = {'slug': ('name',)}
+    readonly_fields = ['created_at', 'updated_at', 'articles_count']
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('name', 'slug', 'bio')
+        }),
+        ('Media', {
+            'fields': ('photo',)
+        }),
+        ('Contact', {
+            'fields': ('contact_info',)
+        }),
+        ('Metadata', {
+            'fields': ('is_active', 'articles_count'),
+            'classes': ('collapse',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def articles_count(self, obj):
+        """Display the count of published articles by this author."""
+        return obj.get_articles_count()
+    articles_count.short_description = 'Published Articles'
 
 
 @admin.register(Category)

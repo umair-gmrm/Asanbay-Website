@@ -39,7 +39,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - DB_HOST=db
       - POSTGRES_PORT=5432
-      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-asanbay.org,www.asanbay.org,localhost,127.0.0.1}
     depends_on:
       db:
         condition: service_healthy

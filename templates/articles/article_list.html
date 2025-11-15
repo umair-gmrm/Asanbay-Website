@@ -3,7 +3,7 @@
 {% block title %}Articles - {{ block.super }}{% endblock %}
 
 {% block content %}
-<div class="px-4 sm:px-6 lg:px-8">
+<div class="w-full">
     <!-- Header Section -->
     <div class="mb-10 animate-fade-in">
         <h1 class="text-4xl sm:text-5xl font-bold text-slate-900 mb-2 bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
@@ -118,12 +118,12 @@
                             <!-- Article Meta -->
                             <div class="flex items-center justify-between text-sm text-slate-500 mb-4 pt-4 border-t border-slate-100">
                                 <div class="flex items-center space-x-2">
-                                    <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
+                                    <a href="{% url 'articles:author_detail' article.author.slug %}" class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-700 transition-colors">
                                         <span class="text-white text-xs font-semibold">
-                                            {{ article.author.get_full_name|default:article.author.username|first|upper }}
+                                            {{ article.author.name|first|upper }}
                                         </span>
-                                    </div>
-                                    <span class="font-medium text-slate-700">{{ article.author.get_full_name|default:article.author.username }}</span>
+                                    </a>
+                                    <a href="{% url 'articles:author_detail' article.author.slug %}" class="font-medium text-slate-700 hover:text-red-600 transition-colors">{{ article.author.name }}</a>
                                 </div>
                             </div>
                             

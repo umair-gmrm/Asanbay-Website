@@ -10,5 +10,7 @@ urlpatterns = [
     path('articles/category/<slug:slug>/', views.CategoryFilterView.as_view(), name='category'),
     path('articles/tag/<path:slugs>/', views.TagFilterView.as_view(), name='tag'),  # path allows multiple slugs separated by /
     path('articles/<slug:slug>/', views.ArticleDetailView.as_view(), name='detail'),
+    path('authors/', views.AuthorListView.as_view(), name='author_list'),
+    path('authors/<slug:slug>/', views.AuthorDetailView.as_view(), name='author_detail'),
 ]
 

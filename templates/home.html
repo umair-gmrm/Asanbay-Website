@@ -4,9 +4,9 @@
 
 {% block content %}
 {% load static %}
-<div class="px-4 sm:px-6 lg:px-8">
+<div class="w-full">
     <!-- Hero Section -->
-    <div class="mb-16 animate-fade-in">
+    <div class="mb-12 animate-fade-in">
         <div class="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8">
             <!-- Prominent Logo -->
             <div class="transform hover:scale-105 transition-transform duration-300">
@@ -19,107 +19,149 @@
         </div>
     </div>
 
-    <!-- Recent Articles Section -->
-    <div class="mb-8">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-3xl font-bold text-slate-900">Recent Articles</h2>
-            <a href="{% url 'articles:list' %}" 
-               class="inline-flex items-center px-5 py-2.5 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-all duration-200 shadow-sm hover:shadow-md">
-                View All Articles
-                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-            </a>
-        </div>
-
-        {% if articles %}
+    <!-- Main Content with Sidebar -->
+    <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Sidebar: Categories and Tags -->
+        <aside class="lg:w-64 flex-shrink-0">
             <div class="space-y-6">
-                {% for article in articles %}
-                    <article class="group bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-xl hover:border-red-200 transition-all duration-300 animate-fade-in">
-                        <div class="p-6">
-                            <div class="flex items-start justify-between gap-6">
-                                <!-- Article Content -->
-                                <div class="flex-1">
-                                    <!-- Article Header -->
-                                    <div class="mb-4">
-                                        <div class="flex items-center justify-between mb-3">
-                                            {% if article.category %}
-                                                <a href="{% url 'articles:category' article.category.slug %}" 
-                                                   class="px-3 py-1 text-xs font-semibold text-red-700 bg-red-50 rounded-full hover:bg-red-100 transition-colors">
-                                                    {{ article.category.name }}
-                                                </a>
-                                            {% else %}
-                                                <span class="px-3 py-1 text-xs font-semibold text-slate-500 bg-slate-100 rounded-full">
-                                                    Uncategorized
-                                                </span>
-                                            {% endif %}
-                                        </div>
-                                        <h2 class="text-2xl font-bold text-slate-900 mb-3 group-hover:text-red-600 transition-colors">
-                                            <a href="{% url 'articles:detail' article.slug %}" class="hover:underline">
-                                                {{ article.title }}
-                                            </a>
-                                        </h2>
-                                    </div>
-                                    
-                                    <!-- Article Excerpt -->
-                                    <div class="mb-4">
-                                        {% if article.excerpt %}
-                                            <p class="text-slate-600 line-clamp-2 leading-relaxed">{{ article.excerpt }}</p>
-                                        {% else %}
-                                            <p class="text-slate-600 line-clamp-2 leading-relaxed">{{ article.content|truncatewords:30 }}</p>
-                                        {% endif %}
-                                    </div>
-                                    
-                                    <!-- Article Meta -->
-                                    <div class="flex items-center justify-between pt-4 border-t border-slate-100">
-                                        <div class="flex items-center space-x-3">
-                                            <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center">
-                                                <span class="text-white text-sm font-semibold">
-                                                    {{ article.author.get_full_name|default:article.author.username|first|upper }}
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <div class="font-medium text-slate-700">{{ article.author.get_full_name|default:article.author.username }}</div>
-                                                <div class="text-xs text-slate-500">
-                                                    {% if article.published_at %}
-                                                        <time datetime="{{ article.published_at|date:'c' }}">
-                                                            {{ article.published_at|date:"M d, Y" }}
-                                                        </time>
-                                                    {% else %}
-                                                        <time datetime="{{ article.created_at|date:'c' }}">
-                                                            {{ article.created_at|date:"M d, Y" }}
-                                                        </time>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <a href="{% url 'articles:detail' article.slug %}" 
-                                           class="inline-flex items-center text-red-600 hover:text-red-700 font-semibold text-sm group-hover:translate-x-1 transition-transform duration-200">
-                                            Read more
-                                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                            </svg>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="text-center py-16 animate-fade-in">
-                <div class="max-w-md mx-auto">
-                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
+                <!-- Categories Panel -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6 animate-slide-up">
+                    <h3 class="text-lg font-bold text-slate-900 mb-4">Categories</h3>
+                    <div class="space-y-2">
+                        <a href="{% url 'articles:list' %}" 
+                           class="block px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-slate-50 text-slate-700 hover:bg-slate-100">
+                            All Categories
+                        </a>
+                        {% for category in categories %}
+                            <a href="{% url 'articles:category' category.slug %}" 
+                               class="block px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-slate-50 text-slate-700 hover:bg-slate-100 hover:bg-red-50 hover:text-red-700">
+                                {{ category.name }}
+                            </a>
+                        {% endfor %}
                     </div>
-                    <h3 class="text-xl font-semibold text-slate-900 mb-2">No articles yet</h3>
-                    <p class="text-slate-600">Check back soon for new articles and insights.</p>
+                </div>
+
+                <!-- Tags Panel -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6 animate-slide-up">
+                    <h3 class="text-lg font-bold text-slate-900 mb-4">Tags</h3>
+                    <div class="flex flex-wrap gap-2">
+                        {% for tag in tags %}
+                            <a href="{% url 'articles:tag' tag.slug %}" 
+                               class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200">
+                                #{{ tag.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-        {% endif %}
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-3xl font-bold text-slate-900">Recent Articles</h2>
+                <a href="{% url 'articles:list' %}" 
+                   class="inline-flex items-center px-5 py-2.5 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-all duration-200 shadow-sm hover:shadow-md">
+                    View All Articles
+                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Article List -->
+            <div>
+
+                {% if articles %}
+                    <div class="space-y-6">
+                        {% for article in articles %}
+                            <article class="group bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-xl hover:border-red-200 transition-all duration-300 animate-fade-in">
+                                <div class="p-6">
+                                    <div class="flex items-start justify-between gap-6">
+                                        <!-- Article Content -->
+                                        <div class="flex-1">
+                                            <!-- Article Header -->
+                                            <div class="mb-4">
+                                                <div class="flex items-center justify-between mb-3">
+                                                    {% if article.category %}
+                                                        <a href="{% url 'articles:category' article.category.slug %}" 
+                                                           class="px-3 py-1 text-xs font-semibold text-red-700 bg-red-50 rounded-full hover:bg-red-100 transition-colors">
+                                                            {{ article.category.name }}
+                                                        </a>
+                                                    {% else %}
+                                                        <span class="px-3 py-1 text-xs font-semibold text-slate-500 bg-slate-100 rounded-full">
+                                                            Uncategorized
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                                <h2 class="text-2xl font-bold text-slate-900 mb-3 group-hover:text-red-600 transition-colors">
+                                                    <a href="{% url 'articles:detail' article.slug %}" class="hover:underline">
+                                                        {{ article.title }}
+                                                    </a>
+                                                </h2>
+                                            </div>
+                                            
+                                            <!-- Article Excerpt -->
+                                            <div class="mb-4">
+                                                {% if article.excerpt %}
+                                                    <p class="text-slate-600 line-clamp-2 leading-relaxed">{{ article.excerpt }}</p>
+                                                {% else %}
+                                                    <p class="text-slate-600 line-clamp-2 leading-relaxed">{{ article.content|truncatewords:30 }}</p>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <!-- Article Meta -->
+                                            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                                                <div class="flex items-center space-x-3">
+                                                    <a href="{% url 'articles:author_detail' article.author.slug %}" class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-700 transition-colors">
+                                                        <span class="text-white text-sm font-semibold">
+                                                            {{ article.author.name|first|upper }}
+                                                        </span>
+                                                    </a>
+                                                    <div>
+                                                        <a href="{% url 'articles:author_detail' article.author.slug %}" class="font-medium text-slate-700 hover:text-red-600 transition-colors">{{ article.author.name }}</a>
+                                                        <div class="text-xs text-slate-500">
+                                                            {% if article.published_at %}
+                                                                <time datetime="{{ article.published_at|date:'c' }}">
+                                                                    {{ article.published_at|date:"M d, Y" }}
+                                                                </time>
+                                                            {% else %}
+                                                                <time datetime="{{ article.created_at|date:'c' }}">
+                                                                    {{ article.created_at|date:"M d, Y" }}
+                                                                </time>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <a href="{% url 'articles:detail' article.slug %}" 
+                                                   class="inline-flex items-center text-red-600 hover:text-red-700 font-semibold text-sm group-hover:translate-x-1 transition-transform duration-200">
+                                                    Read more
+                                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                                    </svg>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-16 animate-fade-in">
+                        <div class="max-w-md mx-auto">
+                            <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold text-slate-900 mb-2">No articles yet</h3>
+                            <p class="text-slate-600">Check back soon for new articles and insights.</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

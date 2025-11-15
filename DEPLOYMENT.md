@@ -7,7 +7,7 @@ This guide explains how to deploy the Asanbay Website to a cloud VM using Docker
 - Docker Engine 20.10+
 - Docker Compose 2.0+
 - A cloud VM with at least 2GB RAM and 2 CPU cores
-- Domain name (optional, for SSL)
+- Domain name configured: `asanbay.org` (already set in configuration)
 
 ## Quick Start
 
@@ -30,7 +30,7 @@ This guide explains how to deploy the Asanbay Website to a cloud VM using Docker
    Important settings to change:
    - `SECRET_KEY`: Generate a new secret key (use `python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"`)
    - `POSTGRES_PASSWORD`: Use a strong password
-   - `ALLOWED_HOSTS`: Add your domain name(s)
+   - `ALLOWED_HOSTS`: Already configured for `asanbay.org` and `www.asanbay.org` (can be modified if needed)
    - `DEBUG`: Set to `False` for production
 
 4. **Build and start services**:
@@ -71,11 +71,11 @@ The nginx configuration is in `nginx/nginx.conf`. For HTTPS:
    - `cert.pem` (certificate)
    - `key.pem` (private key)
 
-2. Uncomment the HTTPS server block in `nginx/nginx.conf`
+2. Uncomment the HTTPS server block in `nginx/nginx.conf` (already configured for `asanbay.org` and `www.asanbay.org`)
 
-3. Update the `server_name` directive with your domain
+3. The `server_name` directive is already set to `asanbay.org` and `www.asanbay.org`
 
-4. Uncomment the HTTP to HTTPS redirect block
+4. Uncomment the HTTP to HTTPS redirect block (already configured for `asanbay.org`)
 
 ### Static and Media Files
 
@@ -128,7 +128,7 @@ docker-compose -f docker-compose.yml up -d --build
 1. **Change default passwords** in `.env`
 2. **Use strong SECRET_KEY** (never commit to git)
 3. **Set DEBUG=False** in production
-4. **Configure ALLOWED_HOSTS** with your domain
+4. **ALLOWED_HOSTS** is already configured for `asanbay.org` and `www.asanbay.org`
 5. **Enable HTTPS** with SSL certificates
 6. **Keep dependencies updated**: `docker-compose pull && docker-compose up -d --build`
 7. **Use firewall** to restrict access to ports 80/443 only
@@ -167,5 +167,6 @@ docker-compose ps
 ```
 
 All services should show as "healthy" when running correctly.
+
 
 

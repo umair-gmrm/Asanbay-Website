@@ -10,6 +10,33 @@ class ArticleStatus(models.TextChoices):
     ARCHIVED = 'archived', 'Archived'
 
 
+class Author(BaseModel):
+    """
+    Author model for article authors.
+    Authors are independent entities managed by admins, not linked to user accounts.
+    """
+    name = models.CharField(max_length=200, help_text="Author's full name")
+    slug = models.SlugField(max_length=200, unique=True, blank=True)
+    bio = models.TextField(blank=True, help_text="Author biography or description")
+    photo = models.ImageField(upload_to='authors/', blank=True, null=True, help_text="Author photo/avatar")
+    contact_info = models.TextField(blank=True, help_text="Contact information (optional)")
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def get_articles_count(self):
+        """Return the count of published articles by this author."""
+        return self.articles.filter(status=ArticleStatus.PUBLISHED, is_active=True).count()
+
+
 class Category(BaseModel):
     """
     Category model for organizing articles by topic or theme.
@@ -59,7 +86,7 @@ class Article(BaseModel):
     slug = models.SlugField(max_length=200, unique=True, blank=True)
     content = models.TextField()
     excerpt = models.TextField(max_length=500, blank=True, help_text="Short summary for article list")
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='articles')
+    author = models.ForeignKey(Author, on_delete=models.PROTECT, related_name='articles')
     category = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
