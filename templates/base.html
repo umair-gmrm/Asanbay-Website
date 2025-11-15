@@ -69,6 +69,14 @@
                     <a href="{% url 'articles:list' %}" class="text-slate-700 hover:text-slate-900 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-slate-100">
                         Articles
                     </a>
+                    {% if static_pages %}
+                        {% for page in static_pages %}
+                            <a href="{% url 'static_page' page.slug %}" 
+                               class="text-slate-700 hover:text-slate-900 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-slate-100">
+                                {{ page.title }}
+                            </a>
+                        {% endfor %}
+                    {% endif %}
                     {% if user.is_authenticated %}
                         <a href="{% url 'admin:index' %}" class="text-slate-700 hover:text-slate-900 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-slate-100">
                             Admin
