@@ -33,6 +33,14 @@ ALLOWED_HOSTS = [
     if host.strip()
 ]
 
+# CSRF Trusted Origins - required when behind a reverse proxy
+# Parse from environment variable (comma-separated, should include protocol)
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv('CSRF_TRUSTED_ORIGINS', 'http://localhost,http://127.0.0.1').split(',')
+    if origin.strip()
+]
+
 
 # Application definition
 
